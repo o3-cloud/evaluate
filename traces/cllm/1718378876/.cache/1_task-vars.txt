@@ -1,0 +1,8 @@
+
+# Experiment Details
+
+TraceId: 1718378876
+Prompt: What is cllm and how does it work?
+Model: l/phi
+Rag: cllm
+RagFetch: 5

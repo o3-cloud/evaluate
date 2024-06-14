@@ -1,0 +1,5 @@
+cllm is a command-line interface for interacting with language models, specifically the Command Line Language Model (CLLM). It provides various functionalities such as listing available systems and schemas, generating prompts from templates, and validating responses against schemas. cllm works by running the cllm command followed by the appropriate arguments and options, which can include system configurations, prompts, and validation schema.
+
+For example, to list all available systems using cllm, one can run the command `cllm systems`. To generate a prompt from a template and validate the response against a schema, one can run the command `cllm gpt/3.5 -pi "What is the meaning of life?"`
+
+Overall, cllm provides a convenient way to interact with language models through the command line, allowing users to easily access and utilize various features and functionalities.

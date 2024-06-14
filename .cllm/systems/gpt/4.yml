@@ -1,0 +1,4 @@
+model: gpt-4-turbo
+provider: openai
+description: OpenAI gpt-4-turbo for general purpose.
+temperature: 0

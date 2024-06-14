@@ -1,0 +1,8 @@
+
+# Experiment Details
+
+TraceId: 1718378806
+Prompt: What is cllm and how does it work?
+Model: l/llama
+Rag: cllm
+RagFetch: 5

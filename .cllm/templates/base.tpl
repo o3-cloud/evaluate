@@ -1,0 +1,4 @@
+{{PROMPT_CONTEXT or ""}} 
+{{PROMPT_STDIN or ""}}
+{{PROMPT_INSTRUCTIONS or ""}}
+{{PROMPT_INPUT or ""}}

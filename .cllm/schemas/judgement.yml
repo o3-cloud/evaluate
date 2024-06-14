@@ -1,0 +1,76 @@
+description: |
+  Create a list schema from prompt
+prompt: |
+  Follow the instructions in the prompt and ouput the result using the provided schema.
+  Do not include ``` in the output.
+schema: |
+  {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "Score": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+      },
+      "Model": {
+        "type": "string"
+      },
+      "Rag": {
+        "type": "string"
+      },
+      "RagFetch": {
+        "type": "integer"
+      },
+      "Prompt": {
+        "type": "string"
+      },
+      "Response": {
+        "type": "string"
+      },
+      "Does it answer the question?": {
+        "type": "string"
+      },
+      "Is it coherent?": {
+        "type": "string"
+      },
+      "Is it accurate?": {
+        "type": "string"
+      },
+      "Suggestions for Improvement": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "Overall": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "Score",
+      "Does it answer the question?",
+      "Is it coherent?",
+      "Is it accurate?",
+      "Suggestions for Improvement",
+      "Overall"
+    ]
+  }
+example: |
+  { 
+    "Model": "gpt/4o",
+    "Rag": "quotientai",
+    "RagFetch": 5,
+    "Prompt": "What does quotientai do?",
+    "Response": ""
+    "Output: ": "Quotient AI is a company that provides AI-powered solutions for the financial services industry. The company was founded by Julia Neagu and Freddie Vargus. Julia Neagu serves as the CEO & Co-Founder, while Freddie Vargus is the CTO & Co-Founder. The founders previously worked on GitHub Copilot. (Source: [Quotient AI](https://www.quotientai.co/company))",
+    "Score": 9,
+    "Does it answer the question?": "Yes, the response answers the question by identifying the founders of the company.",
+    "Is it coherent?": "Yes, the response is coherent. It clearly states the names and roles of the founders.",
+    "Is it accurate?": "Yes, the response is accurate. It correctly identifies Julia Neagu and Freddie Vargus as the founders of the company, citing the source.",
+    "Suggestions for Improvement": [
+      "The response could be slightly improved by mentioning the full names and roles of the founders in a more structured format. For example: 'The founders of the company are Julia Neagu (CEO & Co-Founder) and Freddie Vargus (CTO & Co-Founder) (Source: [Quotient AI](https://www.quotientai.co/company)).'",
+      "Adding a brief mention of their previous experience at GitHub could provide additional context and enhance the response: 'The founders of the company are Julia Neagu (CEO & Co-Founder) and Freddie Vargus (CTO & Co-Founder), who previously worked on GitHub Copilot (Source: [Quotient AI](https://www.quotientai.co/company)).'"
+    ],
+    "Overall": "The response is well-constructed and provides the necessary information concisely."
+  }

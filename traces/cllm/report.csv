@@ -1,0 +1,5 @@
+Model, Rag, Score
+l/llama, cllm, 7
+l/phi, cllm, 8
+l/llama2, cllm, 7
+l/qwen, cllm, 3

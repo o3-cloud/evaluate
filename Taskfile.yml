@@ -1,0 +1,143 @@
+version: 3
+vars:
+  trace_id:
+    sh: echo $(date +%s)
+  rag: promptingguide
+  experiment_dir: traces/{{.rag}}
+  trace_path: "{{.experiment_dir}}/{{.trace_id}}"
+  cache_dir: "{{.trace_path}}/.cache"
+  model: gpt/4o
+  prompt: "What is RAG?"
+  rag_fetch: 5
+tasks:
+  exp-local-models:
+    vars:
+      MODELS: l/llama l/llama2 l/phi l/qwen
+    cmds:
+      - for: { var: MODELS }
+        task: eval-runner
+        vars:
+          model: "{{.ITEM}}"
+  all:
+    vars:
+      MODELS:
+        sh: find ./.cllm/systems -name '*.yml' | sed 's|.*/systems/||; s|\.yml$||'
+    cmds:
+      - for: { var: MODELS }
+        task: eval-runner
+        vars:
+          model: "{{.ITEM}}"
+  eval-runner:        
+    vars:
+      model: "{{.model}}"
+      experiment_dir: traces/{{.rag}}
+      trace_path: "{{.experiment_dir}}/{{.trace_id}}"
+      cache_dir: "{{.trace_path}}/.cache"     
+    cmds:
+      - task evaluate model={{.model}} rag={{.rag}} prompt="{{.prompt}}" rag_fetch={{.rag_fetch}} 
+  evaluate:
+    vars:
+      trace_id:
+          sh: echo $(date +%s)
+      model: "{{.model}}"
+      experiment_dir: traces/{{.rag}}
+      trace_path: "{{.experiment_dir}}/{{.trace_id}}"
+      cache_dir: "{{.trace_path}}/.cache"    
+    cmds:
+      - task: init
+        vars:
+          trace_id: "{{.trace_id}}"
+          model: "{{.model}}"
+          experiment_dir: traces/{{.rag}}
+          trace_path: "{{.experiment_dir}}/{{.trace_id}}"
+          cache_dir: "{{.trace_path}}/.cache"
+      - task: rag
+        vars:
+          trace_id: "{{.trace_id}}"
+          model: "{{.model}}"
+          experiment_dir: traces/{{.rag}}
+          trace_path: "{{.experiment_dir}}/{{.trace_id}}"
+          cache_dir: "{{.trace_path}}/.cache"
+      - task: llm
+        vars:
+          trace_id: "{{.trace_id}}"
+          model: "{{.model}}"
+          experiment_dir: traces/{{.rag}}
+          trace_path: "{{.experiment_dir}}/{{.trace_id}}"
+          cache_dir: "{{.trace_path}}/.cache"
+      - task: judge
+        vars:
+          trace_id: "{{.trace_id}}"
+          model: "{{.model}}"
+          experiment_dir: traces/{{.rag}}
+          trace_path: "{{.experiment_dir}}/{{.trace_id}}"
+          cache_dir: "{{.trace_path}}/.cache"
+  init:
+    cmds:
+      - mkdir -p {{.cache_dir}}
+      - |
+        echo "
+        # Experiment Details
+
+        TraceId: {{.trace_id}}
+        Prompt: {{.prompt}}
+        Model: {{.model}}
+        Rag: {{.rag}}
+        RagFetch: {{.rag_fetch}}" > {{.cache_dir}}/1_task-vars.txt
+  rag:
+    cmds:
+      - | 
+        cllm-vector-faiss \
+        -i {{.rag}} read "{{.prompt}}" > {{.cache_dir}}/2_rag.json
+        cat {{.cache_dir}}/2_rag.json | cllm -t rag-qa --dry-run {{.model}} "{{.prompt}}" > {{.cache_dir}}/3_prompt-rag.txt
+  llm:
+    cmds:
+      - |
+        cat {{.cache_dir}}/3_prompt-rag.txt | cllm -t base {{.model}} "{{.prompt}}" > {{.cache_dir}}/4_prompt-res.txt
+  report:
+    cmds:
+      - |
+        reports=$(find {{.experiment_dir}} -name '6_judgement.json')
+        echo "Model, Rag, Score" > {{.experiment_dir}}/report.csv
+        for report in $reports; do
+          echo "$(jq -r '.Model + ", " + .Rag + ", " + (.Score|tostring)' $report)" >> {{.experiment_dir}}/report.csv
+        done
+        cat {{.experiment_dir}}/report.csv | python3 report.py
+  judge:
+    vars:
+      JUDGE_PROMPT: |
+        Rate the quality of this response. Explain your answer.  
+        Compare the LLM_STOP response to the question.
+        Does it answer the question? Is it coherent? Is it accurate?
+        Give it a score between 1 and 10.
+        Make suggestions for improvement.
+      JUDGE_ROLE: Your job is to judge the quality of the response.
+      JUDGE_MODEL: gpt/4o
+    cmds:
+      - |
+        echo "Experiment Details:"
+        echo ""
+        cat {{.cache_dir}}/1_task-vars.txt
+        echo ""
+        echo "LLM Response:"
+        echo ""
+        echo ""
+        cat {{.cache_dir}}/4_prompt-res.txt
+        echo ""
+        echo "Judge Response:"
+        echo ""
+        cllm \
+        -pr "{{.JUDGE_ROLE}}" \
+        -pp "$(cat {{.cache_dir}}/1_task-vars.txt)" \
+        -pc "
+        Prompt Input:
+        $(cat {{.cache_dir}}/3_prompt-rag.txt)
+
+        Prompt Response:
+        $(cat {{.cache_dir}}/4_prompt-res.txt)" {{.JUDGE_MODEL}} "{{.JUDGE_PROMPT}}" > {{.cache_dir}}/5_judge-res.md
+        cat {{.cache_dir}}/5_judge-res.md | cllm -s judgement {{.JUDGE_MODEL}} -pp "$(cat {{.cache_dir}}/1_task-vars.txt)" > {{.cache_dir}}/6_judgement.json
+        cat {{.cache_dir}}/6_judgement.json
+
+        
+
+  

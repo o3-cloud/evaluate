@@ -1,0 +1,3 @@
+CLLM stands for Command Line Language Model, which is a tool designed to facilitate interactions with language models via the command line. It provides various functionalities such as listing available systems and schemas, generating prompts from templates, and validating responses against schemas [1]. To use CLLM, you can run the cllm command followed by the appropriate arguments and options, allowing you to interact with language models in a flexible and customizable way.
+
+[1] Source: docs/README.md

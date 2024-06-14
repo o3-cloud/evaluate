@@ -1,0 +1,17 @@
+description: |
+  Create a generic JSON object schema from prompt
+prompt: |
+  Follow the instructions in the prompt and output the result using the provided schema.
+  Do not include ``` in the output.
+schema: |
+  {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": true
+  }
+example: |
+  {
+    "key1": "value1",
+    "key2": "value2",
+    "key3": "value3"
+  }
